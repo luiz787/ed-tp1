@@ -14,12 +14,12 @@ Lista<T>::Lista() {
 }
 
 template<class T>
-Node<T> *Lista<T>::getPrimeiro() {
+Node<T> *Lista<T>::getPrimeiro() const {
     return this->cabeca->getProximo();
 }
 
 template<class T>
-Node<T> *Lista<T>::getUltimo() {
+Node<T> *Lista<T>::getUltimo() const {
     return this->ultimo;
 }
 
@@ -28,6 +28,22 @@ void Lista<T>::adicionar(T* elemento) {
     this->ultimo->setProximo(new Node<T>(elemento));
     this->ultimo = this->ultimo->getProximo();
     this->tamanho++;
+}
+
+template<class T>
+void Lista<T>::adicionarEmOrdemDescendente(T* elemento) {
+    auto noAtual = this->cabeca;
+    while (noAtual->getProximo() != nullptr) {
+        if (*elemento > *noAtual->getProximo()->getValor()) {
+            auto aux = noAtual->getProximo();
+            auto novoNo = new Node<T>(elemento);
+            noAtual->setProximo(novoNo);
+            novoNo->setProximo(aux);
+            ++tamanho;
+            break;
+        }
+        noAtual = noAtual->getProximo();
+    }
 }
 
 template<class T>
@@ -84,7 +100,7 @@ void Lista<T>::mergeSort(Node<T>** referenciaInicio) {
     mergeSort(&a);
     mergeSort(&b);
 
-    *referenciaInicio = sortedMerge(a, b);
+    *referenciaInicio = unirListas(a, b);
 }
 
 template<class T>
@@ -106,7 +122,7 @@ void Lista<T>::dividirPelaMetade(Node<T>* fonte, Node<T>** referenciaFrente, Nod
 }
 
 template<class T>
-Node<T>* Lista<T>::sortedMerge(Node<T>* a, Node<T>* b) {
+Node<T>* Lista<T>::unirListas(Node<T> *a, Node<T> *b) {
     Node<T>* resultado = nullptr;
 
     if (a == nullptr) {
@@ -117,10 +133,10 @@ Node<T>* Lista<T>::sortedMerge(Node<T>* a, Node<T>* b) {
 
     if (*a->getValor() > *b->getValor()) {
         resultado = a;
-        resultado->setProximo(sortedMerge(a->getProximo(), b));
+        resultado->setProximo(unirListas(a->getProximo(), b));
     } else {
         resultado = b;
-        resultado->setProximo(sortedMerge(a, b->getProximo()));
+        resultado->setProximo(unirListas(a, b->getProximo()));
     }
     return resultado;
 }

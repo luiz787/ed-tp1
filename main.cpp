@@ -5,10 +5,8 @@
 
 void read(Lista<Curso> &cursos, Lista<Aluno> &alunos);
 void process(Lista<Curso> &cursos, Lista<Aluno> &alunos);
-void resolverDesempates(Lista<Curso> &cursos);
 void imprimirResultado(Lista<Curso> &cursos);
-
-Curso* obterCursoPorId(Lista<Curso> &cursos, uint16_t id);
+Lista<Aluno> filtrarAlunosNaoAprovados(Lista<Aluno> &alunos);
 
 int main() {
     try {
@@ -44,39 +42,79 @@ void read(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
         std::cin >> nota >> idCursoPrimeiraOpcao >> idCursoSegundaOpcao;
         alunos.adicionar(new Aluno(i, nomeAluno, nota, idCursoPrimeiraOpcao, idCursoSegundaOpcao));
     }
-    //std::cout << "Was able to read." << std::endl;
-    //std::cout << "Starting to process input..." << std::endl;
 }
 
 void process(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
-    //std::cout << "Processing." << std::endl;
-
-    //std::cout << "Amount of courses: " << cursos.getTamanho() << std::endl;
-    //std::cout << "Amount of students: " << alunos.getTamanho() << std::endl;
     alunos.ordenar();
-    //std::cout << "Ordered alunos." << std::endl;
-    //alunos.imprimir();
-    auto aluno = alunos.getPrimeiro();
-    while (aluno != nullptr) {
-        auto cursoPrimeiraOpcao = obterCursoPorId(cursos, aluno->getValor()->getCodigoPrimeiraOpcao());
-        auto cursoSegundaOpcao = obterCursoPorId(cursos, aluno->getValor()->getCodigoSegundaOpcao());
-        if (cursoPrimeiraOpcao->getQuantidadeVagasRemanescentes() == 0
-            && cursoSegundaOpcao->getQuantidadeVagasRemanescentes() == 0) {
-            cursoPrimeiraOpcao->adicionarAlunoListaEspera(aluno->getValor());
-            cursoSegundaOpcao->adicionarAlunoListaEspera(aluno->getValor());
-        }
+    auto nodeCurso = cursos.getPrimeiro();
 
-        if (cursoPrimeiraOpcao->getQuantidadeVagasRemanescentes() > 0) {
-            cursoPrimeiraOpcao->adicionarAlunoListaAprovados(aluno->getValor());
-        } else if (cursoSegundaOpcao->getQuantidadeVagasRemanescentes() > 0) {
-            cursoSegundaOpcao->adicionarAlunoListaAprovados(aluno->getValor());
-            cursoPrimeiraOpcao->adicionarAlunoListaEspera(aluno->getValor());
+    while (nodeCurso != nullptr) {
+        auto curso = nodeCurso->getValor();
+        auto nodeAluno = alunos.getPrimeiro();
+        while (nodeAluno != nullptr) {
+            auto aluno = nodeAluno->getValor();
+            if (aluno->getCodigoPrimeiraOpcao() == curso->getId() && curso->possuiVagas()) {
+                curso->adicionarAlunoListaAprovados(aluno);
+                aluno->setAprovado(true);
+            }
+            nodeAluno = nodeAluno->getProximo();
         }
-
-        aluno = aluno->getProximo();
+        nodeCurso = nodeCurso->getProximo();
     }
 
-    resolverDesempates(cursos);
+    Lista<Aluno> alunosNaoAprovados = filtrarAlunosNaoAprovados(alunos);
+
+    nodeCurso = cursos.getPrimeiro();
+
+    while (nodeCurso != nullptr) {
+        auto curso = nodeCurso->getValor();
+        auto nodeAluno = alunosNaoAprovados.getPrimeiro();
+        while (nodeAluno != nullptr) {
+            auto aluno = nodeAluno->getValor();
+            if (aluno->getCodigoSegundaOpcao() == curso->getId()) {
+                if (curso->possuiVagas()) {
+                    curso->adicionarAlunoListaAprovados(aluno);
+                    aluno->setAprovado(true);
+                }
+            }
+            if (aluno->getCodigoPrimeiraOpcao() == curso->getId()) {
+                curso->adicionarAlunoListaEspera(aluno);
+            }
+            nodeAluno = nodeAluno->getProximo();
+        }
+        nodeCurso = nodeCurso->getProximo();
+    }
+
+    alunosNaoAprovados = filtrarAlunosNaoAprovados(alunosNaoAprovados);
+
+    nodeCurso = cursos.getPrimeiro();
+
+    while (nodeCurso != nullptr) {
+        auto curso = nodeCurso->getValor();
+        auto nodeAluno = alunosNaoAprovados.getPrimeiro();
+        while (nodeAluno != nullptr) {
+            auto aluno = nodeAluno->getValor();
+            if (aluno->getCodigoSegundaOpcao() == curso->getId()) {
+                curso->adicionarAlunoListaEspera(aluno);
+            }
+            nodeAluno = nodeAluno->getProximo();
+        }
+        nodeCurso = nodeCurso->getProximo();
+    }
+}
+
+Lista<Aluno> filtrarAlunosNaoAprovados(Lista<Aluno> &alunos) {
+    auto alunosNaoAprovados = Lista<Aluno>();
+
+    auto nodeAluno = alunos.getPrimeiro();
+    while (nodeAluno != nullptr) {
+        auto aluno = nodeAluno->getValor();
+        if (!aluno->isAprovado()) {
+            alunosNaoAprovados.adicionar(aluno);
+        }
+        nodeAluno = nodeAluno->getProximo();
+    }
+    return alunosNaoAprovados;
 }
 
 Curso* obterCursoPorId(Lista<Curso> &cursos, uint16_t id){
@@ -89,10 +127,6 @@ Curso* obterCursoPorId(Lista<Curso> &cursos, uint16_t id){
         }
     }
     throw ListaException("Curso requisitado não está na lista de cursos.");
-}
-
-void resolverDesempates(Lista<Curso> &cursos) {
-    //std::cout << "Resolvendo desempates." << std::endl << std::endl << std::endl;
 }
 
 void imprimirResultado(Lista<Curso> &cursos) {

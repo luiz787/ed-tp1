@@ -12,6 +12,7 @@ private:
     double nota;
     uint16_t codigoPrimeiraOpcao;
     uint16_t codigoSegundaOpcao;
+    bool aprovado;
 
 public:
     bool operator<(const Aluno &rhs) const;
@@ -30,6 +31,8 @@ public:
     double getNota() const;
     uint16_t getCodigoPrimeiraOpcao() const;
     uint16_t getCodigoSegundaOpcao() const;
+    bool isAprovado() const;
+    void setAprovado(bool aprovado);
 
     friend std::ostream &operator<<(std::ostream &os, const Aluno &aluno);
 };

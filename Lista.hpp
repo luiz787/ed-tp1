@@ -13,12 +13,14 @@ private:
     uint16_t tamanho;
     void mergeSort(Node<T>** referenciaInicio);
     void dividirPelaMetade(Node<T>* fonte, Node<T>** referenciaFrente, Node<T>** referenciaTras);
-    Node<T>* sortedMerge(Node<T>* a, Node<T>* b);
+    Node<T>* unirListas(Node<T> *a, Node<T> *b);
 public:
     Lista();
-    Node<T>* getPrimeiro();
-    Node<T>* getUltimo();
+
+    Node<T>* getPrimeiro() const;
+    Node<T>* getUltimo() const;
     void adicionar(T* elemento);
+    void adicionarEmOrdemDescendente(T* elemento);
     T* removerProximo(Node<T>* no);
     uint16_t getTamanho() const;
     bool vazia() const;

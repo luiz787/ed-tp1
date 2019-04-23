@@ -1,12 +1,15 @@
 #include "Curso.hpp"
 #include <iomanip>
+#include <iostream>
 
 Curso::Curso() = default;
 
 Curso::Curso(uint16_t id, std::string nome, uint16_t quantidadeVagas) : id(id), nome(std::move(nome)),
                                                               quantidadeVagas(quantidadeVagas),
                                                               quantidadeVagasRemanescentes(quantidadeVagas),
-                                                              notaCorte(0) {}
+                                                              notaCorte(0),
+                                                              aprovados(),
+                                                              listaEspera() {}
 
 uint16_t Curso::getId() const {
     return id;
@@ -26,6 +29,10 @@ uint16_t Curso::getQuantidadeVagasRemanescentes() const {
 
 double Curso::getNotaCorte() const {
     return notaCorte;
+}
+
+bool Curso::possuiVagas() const {
+    return quantidadeVagasRemanescentes > 0;
 }
 
 const Lista<Aluno> &Curso::getAprovados() const {
@@ -96,7 +103,11 @@ std::ostream &operator<<(std::ostream &os, const Curso &curso) {
 }
 
 void Curso::adicionarAlunoListaAprovados(Aluno* aluno) {
-    this->aprovados.adicionar(aluno);
+    if (aprovados.vazia() || aluno->getNota() < aprovados.getUltimo()->getValor()->getNota()) {
+        this->aprovados.adicionar(aluno);
+    } else {
+        this->aprovados.adicionarEmOrdemDescendente(aluno);
+    }
     this->quantidadeVagasRemanescentes--;
     if (quantidadeVagasRemanescentes == 0) {
         this->notaCorte = this->aprovados.getUltimo()->getValor()->getNota();
@@ -104,5 +115,9 @@ void Curso::adicionarAlunoListaAprovados(Aluno* aluno) {
 }
 
 void Curso::adicionarAlunoListaEspera(Aluno* aluno) {
-    this->listaEspera.adicionar(aluno);
+    if (listaEspera.vazia() || aluno->getNota() < listaEspera.getUltimo()->getValor()->getNota()) {
+        this->listaEspera.adicionar(aluno);
+    } else {
+        this->listaEspera.adicionarEmOrdemDescendente(aluno);
+    }
 }

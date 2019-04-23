@@ -24,6 +24,8 @@ public:
     bool operator==(const Curso &rhs) const;
     bool operator!=(const Curso &rhs) const;
 
+    friend std::ostream &operator<<(std::ostream &os, const Curso &curso);
+
     Curso();
     Curso(uint16_t, std::string, uint16_t);
 
@@ -32,12 +34,11 @@ public:
     uint16_t getQuantidadeVagas() const;
     uint16_t getQuantidadeVagasRemanescentes() const;
     double getNotaCorte() const;
+    bool possuiVagas() const;
     const Lista<Aluno> &getAprovados() const;
     const Lista<Aluno> &getListaEspera() const;
     void adicionarAlunoListaAprovados(Aluno* aluno);
     void adicionarAlunoListaEspera(Aluno* aluno);
-
-    friend std::ostream &operator<<(std::ostream &os, const Curso &curso);
 };
 
 #endif

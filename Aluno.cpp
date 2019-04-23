@@ -11,7 +11,8 @@ Aluno::Aluno(uint16_t id, std::string nome,
                                                                              nome(std::move(nome)),
                                                                              nota(nota),
                                                                              codigoPrimeiraOpcao(codigoPrimeiraOpcao),
-                                                                             codigoSegundaOpcao(codigoSegundaOpcao) {}
+                                                                             codigoSegundaOpcao(codigoSegundaOpcao),
+                                                                             aprovado(false) {}
 
 uint16_t Aluno::getId() const {
     return id;
@@ -31,6 +32,14 @@ uint16_t Aluno::getCodigoPrimeiraOpcao() const {
 
 uint16_t Aluno::getCodigoSegundaOpcao() const {
     return codigoSegundaOpcao;
+}
+
+bool Aluno::isAprovado() const {
+    return aprovado;
+}
+
+void Aluno::setAprovado(bool aprovado) {
+    this->aprovado = aprovado;
 }
 
 bool Aluno::operator==(const Aluno &rhs) const {
@@ -57,6 +66,17 @@ bool Aluno::operator<(const Aluno &rhs) const {
     if (rhs.nota < nota) {
         return false;
     }
+
+    /*
+     * Um aluno que tem uma primeira opção menor deve ser "maior".
+     */
+    if (codigoPrimeiraOpcao < rhs.codigoPrimeiraOpcao) {
+        return false;
+    }
+    if (rhs.codigoPrimeiraOpcao < codigoPrimeiraOpcao) {
+        return true;
+    }
+
     /*
      * Um aluno que foi inserido primeiro (com id menor) deve ser "maior".
      */
