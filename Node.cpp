@@ -8,6 +8,7 @@ Node<T>::Node() = default;
 template<class T>
 Node<T>::Node(T* elemento) {
     this->valor = elemento;
+    this->anterior = nullptr;
     this->proximo = nullptr;
 }
 
@@ -19,6 +20,16 @@ Node<T>* Node<T>::getProximo() const {
 template<class T>
 void Node<T>::setProximo(Node<T> *no) {
     this->proximo = no;
+}
+
+template<class T>
+Node<T> *Node<T>::getAnterior() const {
+    return this->anterior;
+}
+
+template<class T>
+void Node<T>::setAnterior(Node<T> *no) {
+    this->anterior = no;
 }
 
 template<class T>

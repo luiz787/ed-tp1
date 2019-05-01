@@ -7,7 +7,8 @@
 
 template<class T>
 Lista<T>::Lista() {
-    this->cabeca = new Node<T>();
+    this->cabeca = new Node<T>(nullptr);
+    this->cabeca->setAnterior(nullptr);
     this->cabeca->setProximo(nullptr);
     this->ultimo = cabeca;
     this->tamanho = 0;
@@ -25,25 +26,35 @@ Node<T> *Lista<T>::getUltimo() const {
 
 template<class T>
 void Lista<T>::adicionar(T* elemento) {
-    this->ultimo->setProximo(new Node<T>(elemento));
-    this->ultimo = this->ultimo->getProximo();
+    auto no = new Node<T>(elemento);
+    no->setAnterior(this->ultimo);
+    this->ultimo->setProximo(no);
+    this->ultimo = no;
     this->tamanho++;
 }
 
 template<class T>
 void Lista<T>::adicionarEmOrdemDescendente(T* elemento) {
-    auto noAtual = this->cabeca;
-    while (noAtual->getProximo() != nullptr) {
-        if (*elemento > *noAtual->getProximo()->getValor()) {
-            auto aux = noAtual->getProximo();
-            auto novoNo = new Node<T>(elemento);
-            noAtual->setProximo(novoNo);
-            novoNo->setProximo(aux);
-            ++tamanho;
-            break;
+    auto noAtual = this->cabeca->getProximo();
+    auto novoNo = new Node<T>(elemento);
+    if (*elemento > *this->cabeca->getProximo()->getValor()) {
+        novoNo->setProximo(noAtual);
+        novoNo->getProximo()->setAnterior(novoNo);
+        this->cabeca->setProximo(novoNo);
+    } else {
+        auto noAtual = this->cabeca->getProximo();
+        while (noAtual->getProximo() != nullptr
+            && *noAtual->getProximo()->getValor() > *elemento) {
+            noAtual = noAtual->getProximo();
         }
-        noAtual = noAtual->getProximo();
+        novoNo->setProximo(noAtual->getProximo());
+        if (noAtual->getProximo() != nullptr) {
+            novoNo->getProximo()->setAnterior(novoNo);
+        }
+        noAtual->setProximo(novoNo);
+        novoNo->setAnterior(noAtual);
     }
+    ++tamanho;
 }
 
 template<class T>
@@ -61,6 +72,19 @@ T* Lista<T>::removerProximo(Node<T>* no) {
     }
     T* valor = aux->getValor();
     delete aux;
+    return valor;
+}
+
+template<class T>
+T* Lista<T>::removerUltimo() {
+    if (vazia()) {
+        throw ListaException("A lista está vazia.");
+    }
+    auto noRemovido = this->ultimo;
+    this->ultimo = this->ultimo->getAnterior();
+    this->ultimo->setProximo(nullptr);
+    auto valor = noRemovido->getValor();
+    delete(noRemovido);
     return valor;
 }
 
@@ -118,6 +142,7 @@ void Lista<T>::dividirPelaMetade(Node<T>* fonte, Node<T>** referenciaFrente, Nod
 
     *referenciaFrente = fonte;
     *referenciaTras = slow->getProximo();
+    slow->getProximo()->setAnterior(nullptr);
     slow->setProximo(nullptr);
 }
 
@@ -134,9 +159,13 @@ Node<T>* Lista<T>::unirListas(Node<T> *a, Node<T> *b) {
     if (*a->getValor() > *b->getValor()) {
         resultado = a;
         resultado->setProximo(unirListas(a->getProximo(), b));
+        resultado->getProximo()->setAnterior(resultado);
+        resultado->setAnterior(nullptr);
     } else {
         resultado = b;
         resultado->setProximo(unirListas(a, b->getProximo()));
+        resultado->getProximo()->setAnterior(resultado);
+        resultado->setAnterior(nullptr);
     }
     return resultado;
 }

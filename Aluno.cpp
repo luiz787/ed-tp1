@@ -66,17 +66,6 @@ bool Aluno::operator<(const Aluno &rhs) const {
     if (rhs.nota < nota) {
         return false;
     }
-
-    /*
-     * Um aluno que tem uma primeira opção menor deve ser "maior".
-     */
-    if (codigoPrimeiraOpcao < rhs.codigoPrimeiraOpcao) {
-        return false;
-    }
-    if (rhs.codigoPrimeiraOpcao < codigoPrimeiraOpcao) {
-        return true;
-    }
-
     /*
      * Um aluno que foi inserido primeiro (com id menor) deve ser "maior".
      */

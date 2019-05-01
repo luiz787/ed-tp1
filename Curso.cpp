@@ -103,6 +103,12 @@ std::ostream &operator<<(std::ostream &os, const Curso &curso) {
 }
 
 void Curso::adicionarAlunoListaAprovados(Aluno* aluno) {
+    if (quantidadeVagasRemanescentes == 0) {
+        auto alunoRemovido = aprovados.removerUltimo();
+        alunoRemovido->setAprovado(false);
+        this->quantidadeVagasRemanescentes++;
+    }
+
     if (aprovados.vazia() || aluno->getNota() < aprovados.getUltimo()->getValor()->getNota()) {
         this->aprovados.adicionar(aluno);
     } else {

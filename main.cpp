@@ -71,11 +71,10 @@ void process(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
         auto nodeAluno = alunosNaoAprovados.getPrimeiro();
         while (nodeAluno != nullptr) {
             auto aluno = nodeAluno->getValor();
-            if (aluno->getCodigoSegundaOpcao() == curso->getId()) {
-                if (curso->possuiVagas()) {
+            if (aluno->getCodigoSegundaOpcao() == curso->getId()
+                && *aluno > *curso->getAprovados().getUltimo()->getValor()) {
                     curso->adicionarAlunoListaAprovados(aluno);
                     aluno->setAprovado(true);
-                }
             }
             if (aluno->getCodigoPrimeiraOpcao() == curso->getId()) {
                 curso->adicionarAlunoListaEspera(aluno);
@@ -85,7 +84,7 @@ void process(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
         nodeCurso = nodeCurso->getProximo();
     }
 
-    alunosNaoAprovados = filtrarAlunosNaoAprovados(alunosNaoAprovados);
+    alunosNaoAprovados = filtrarAlunosNaoAprovados(alunos);
 
     nodeCurso = cursos.getPrimeiro();
 
@@ -106,7 +105,8 @@ void process(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
 Lista<Aluno> filtrarAlunosNaoAprovados(Lista<Aluno> &alunos) {
     auto alunosNaoAprovados = Lista<Aluno>();
 
-    auto nodeAluno = alunos.getPrimeiro();
+    Node<Aluno> * nodeAluno;
+    nodeAluno = alunos.getPrimeiro();
     while (nodeAluno != nullptr) {
         auto aluno = nodeAluno->getValor();
         if (!aluno->isAprovado()) {
