@@ -12,17 +12,10 @@ private:
     double nota;
     uint16_t codigoPrimeiraOpcao;
     uint16_t codigoSegundaOpcao;
-    bool aprovado;
+    bool aprovadoPrimeiraOpcao;
+    bool aprovadoSegundaOpcao;
 
 public:
-    bool operator<(const Aluno &rhs) const;
-    bool operator>(const Aluno &rhs) const;
-    bool operator<=(const Aluno &rhs) const;
-    bool operator>=(const Aluno &rhs) const;
-
-    bool operator==(const Aluno &rhs) const;
-    bool operator!=(const Aluno &rhs) const;
-
     Aluno();
     Aluno(uint16_t, std::string, double, uint16_t, uint16_t);
 
@@ -31,8 +24,19 @@ public:
     double getNota() const;
     uint16_t getCodigoPrimeiraOpcao() const;
     uint16_t getCodigoSegundaOpcao() const;
-    bool isAprovado() const;
-    void setAprovado(bool aprovado);
+
+    bool isAprovadoPrimeiraOpcao() const;
+    void setAprovadoPrimeiraOpcao(bool aprovado);
+    bool isAprovadoSegundaOpcao() const;
+    void setAprovadoSegundaOpcao(bool aprovado);
+
+    bool operator<(const Aluno &rhs) const;
+    bool operator>(const Aluno &rhs) const;
+    bool operator<=(const Aluno &rhs) const;
+    bool operator>=(const Aluno &rhs) const;
+
+    bool operator==(const Aluno &rhs) const;
+    bool operator!=(const Aluno &rhs) const;
 
     friend std::ostream &operator<<(std::ostream &os, const Aluno &aluno);
 };

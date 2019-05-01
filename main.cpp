@@ -2,18 +2,18 @@
 #include "Curso.hpp"
 #include "ListaException.hpp"
 
-
-void read(Lista<Curso> &cursos, Lista<Aluno> &alunos);
-void process(Lista<Curso> &cursos, Lista<Aluno> &alunos);
+void lerEntrada(Lista<Curso> &cursos, Lista<Aluno> &alunos);
+void processar(Lista<Curso> &cursos, Lista<Aluno> &alunos);
 void imprimirResultado(Lista<Curso> &cursos);
-Lista<Aluno> filtrarAlunosNaoAprovados(Lista<Aluno> &alunos);
+Curso* obterCursoPorId(Lista<Curso> &cursos, uint16_t id);
+Lista<Aluno> filtrarAlunosNaoAprovadosPrimeiraOpcao(Lista<Aluno> &alunos);
 
 int main() {
     try {
         Lista<Curso> cursos;
         Lista<Aluno> alunos;
-        read(cursos, alunos);
-        process(cursos, alunos);
+        lerEntrada(cursos, alunos);
+        processar(cursos, alunos);
         imprimirResultado(cursos);
     } catch (ListaException& e) {
         std::cout << e.what();
@@ -22,7 +22,7 @@ int main() {
     return 0;
 }
 
-void read(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
+void lerEntrada(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
     uint16_t n, m;
     std::cin >> n >> m;
     for (uint16_t i = 0; i < n; i++) {
@@ -44,77 +44,81 @@ void read(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
     }
 }
 
-void process(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
+void processar(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
     alunos.ordenar();
+
+    auto nodeAluno = alunos.getPrimeiro();
+
+    while (nodeAluno != nullptr) {
+        auto aluno = nodeAluno->getValor();
+        auto cursoPrimeiraOpcao = obterCursoPorId(cursos, aluno->getCodigoPrimeiraOpcao());
+        cursoPrimeiraOpcao->adicionarAlunoListaIntermediaria(aluno);
+        nodeAluno = nodeAluno->getProximo();
+    }
+
     auto nodeCurso = cursos.getPrimeiro();
 
     while (nodeCurso != nullptr) {
         auto curso = nodeCurso->getValor();
-        auto nodeAluno = alunos.getPrimeiro();
-        while (nodeAluno != nullptr) {
-            auto aluno = nodeAluno->getValor();
-            if (aluno->getCodigoPrimeiraOpcao() == curso->getId() && curso->possuiVagas()) {
-                curso->adicionarAlunoListaAprovados(aluno);
-                aluno->setAprovado(true);
-            }
-            nodeAluno = nodeAluno->getProximo();
-        }
+        curso->processarListaIntermediaria();
         nodeCurso = nodeCurso->getProximo();
     }
 
-    Lista<Aluno> alunosNaoAprovados = filtrarAlunosNaoAprovados(alunos);
+    Lista<Aluno> alunosNaoAprovados = filtrarAlunosNaoAprovadosPrimeiraOpcao(alunos);
+
+    nodeAluno = alunosNaoAprovados.getPrimeiro();
+    while (nodeAluno != nullptr) {
+        auto aluno = nodeAluno->getValor();
+        auto cursoSegundaOpcao = obterCursoPorId(cursos, aluno->getCodigoSegundaOpcao());
+        cursoSegundaOpcao->adicionarAlunoListaIntermediaria(aluno);
+        nodeAluno = nodeAluno->getProximo();
+    }
 
     nodeCurso = cursos.getPrimeiro();
-
     while (nodeCurso != nullptr) {
         auto curso = nodeCurso->getValor();
-        auto nodeAluno = alunosNaoAprovados.getPrimeiro();
-        while (nodeAluno != nullptr) {
-            auto aluno = nodeAluno->getValor();
-            if (aluno->getCodigoSegundaOpcao() == curso->getId()
-                && *aluno > *curso->getAprovados().getUltimo()->getValor()) {
-                    curso->adicionarAlunoListaAprovados(aluno);
-                    aluno->setAprovado(true);
-            }
-            if (aluno->getCodigoPrimeiraOpcao() == curso->getId()) {
-                curso->adicionarAlunoListaEspera(aluno);
-            }
-            nodeAluno = nodeAluno->getProximo();
-        }
+        curso->processarListaIntermediaria();
         nodeCurso = nodeCurso->getProximo();
     }
 
-    alunosNaoAprovados = filtrarAlunosNaoAprovados(alunos);
+    nodeAluno = alunos.getPrimeiro(); // TODO: filtrarAlunosNaoAprovadosPrimeiraOpcao
+
+    while (nodeAluno != nullptr) {
+        auto aluno = nodeAluno->getValor();
+        if (!aluno->isAprovadoPrimeiraOpcao()) {
+            auto cursoPrimeiraOpcao = obterCursoPorId(cursos, aluno->getCodigoPrimeiraOpcao());
+            cursoPrimeiraOpcao->adicionarAlunoListaEspera(aluno);
+            if (!aluno->isAprovadoSegundaOpcao()) {
+                auto cursoSegundaOpcao = obterCursoPorId(cursos, aluno->getCodigoSegundaOpcao());
+                cursoSegundaOpcao->adicionarAlunoListaEspera(aluno);
+            }
+        }
+        nodeAluno = nodeAluno->getProximo();
+    }
 
     nodeCurso = cursos.getPrimeiro();
-
     while (nodeCurso != nullptr) {
         auto curso = nodeCurso->getValor();
-        auto nodeAluno = alunosNaoAprovados.getPrimeiro();
-        while (nodeAluno != nullptr) {
-            auto aluno = nodeAluno->getValor();
-            if (aluno->getCodigoSegundaOpcao() == curso->getId()) {
-                curso->adicionarAlunoListaEspera(aluno);
-            }
-            nodeAluno = nodeAluno->getProximo();
-        }
+        curso->consolidarListaAprovados();
         nodeCurso = nodeCurso->getProximo();
     }
+
+
 }
 
-Lista<Aluno> filtrarAlunosNaoAprovados(Lista<Aluno> &alunos) {
-    auto alunosNaoAprovados = Lista<Aluno>();
+Lista<Aluno> filtrarAlunosNaoAprovadosPrimeiraOpcao(Lista<Aluno> &alunos) {
+    auto alunosNaoAprovadosPrimeiraOpcao = Lista<Aluno>();
 
     Node<Aluno> * nodeAluno;
     nodeAluno = alunos.getPrimeiro();
     while (nodeAluno != nullptr) {
         auto aluno = nodeAluno->getValor();
-        if (!aluno->isAprovado()) {
-            alunosNaoAprovados.adicionar(aluno);
+        if (!aluno->isAprovadoPrimeiraOpcao()) {
+            alunosNaoAprovadosPrimeiraOpcao.adicionar(aluno);
         }
         nodeAluno = nodeAluno->getProximo();
     }
-    return alunosNaoAprovados;
+    return alunosNaoAprovadosPrimeiraOpcao;
 }
 
 Curso* obterCursoPorId(Lista<Curso> &cursos, uint16_t id){

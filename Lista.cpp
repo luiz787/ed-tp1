@@ -35,6 +35,11 @@ void Lista<T>::adicionar(T* elemento) {
 
 template<class T>
 void Lista<T>::adicionarEmOrdemDescendente(T* elemento) {
+    if (this->vazia()) {
+        this->adicionar(elemento);
+        return;
+    }
+
     auto noAtual = this->cabeca->getProximo();
     auto novoNo = new Node<T>(elemento);
     if (*elemento > *this->cabeca->getProximo()->getValor()) {
@@ -42,7 +47,6 @@ void Lista<T>::adicionarEmOrdemDescendente(T* elemento) {
         novoNo->getProximo()->setAnterior(novoNo);
         this->cabeca->setProximo(novoNo);
     } else {
-        auto noAtual = this->cabeca->getProximo();
         while (noAtual->getProximo() != nullptr
             && *noAtual->getProximo()->getValor() > *elemento) {
             noAtual = noAtual->getProximo();
@@ -54,37 +58,27 @@ void Lista<T>::adicionarEmOrdemDescendente(T* elemento) {
         noAtual->setProximo(novoNo);
         novoNo->setAnterior(noAtual);
     }
-    ++tamanho;
+    this->tamanho++;
 }
 
 template<class T>
-T* Lista<T>::removerProximo(Node<T>* no) {
+T* Lista<T>::remover(Node<T>* no) {
     if (vazia()) {
         throw ListaException("A lista está vazia.");
     }
-    if (no == nullptr || no->getProximo() == nullptr) {
+    if (no == nullptr) {
         throw ListaException("Elemento não se encontra na lista.");
     }
-    Node<T>* aux = no->getProximo();
-    no->setProximo(aux->getProximo());
     if (no->getProximo() == nullptr) {
-        this->ultimo = no;
+        this->ultimo = no->getAnterior();
+    } else {
+        no->getProximo()->setAnterior(no->getAnterior());
     }
-    T* valor = aux->getValor();
-    delete aux;
-    return valor;
-}
 
-template<class T>
-T* Lista<T>::removerUltimo() {
-    if (vazia()) {
-        throw ListaException("A lista está vazia.");
-    }
-    auto noRemovido = this->ultimo;
-    this->ultimo = this->ultimo->getAnterior();
-    this->ultimo->setProximo(nullptr);
-    auto valor = noRemovido->getValor();
-    delete(noRemovido);
+    no->getAnterior()->setProximo(no->getProximo());
+    tamanho--;
+    T* valor = no->getValor();
+    delete no;
     return valor;
 }
 
@@ -168,15 +162,6 @@ Node<T>* Lista<T>::unirListas(Node<T> *a, Node<T> *b) {
         resultado->setAnterior(nullptr);
     }
     return resultado;
-}
-
-template<class T>
-void Lista<T>::imprimir() {
-    auto aux = this->cabeca->getProximo();
-    while (aux != nullptr) {
-        std::cout << *aux->getValor() << std::endl;
-        aux = aux->getProximo();
-    }
 }
 
 template class Lista<Aluno>;

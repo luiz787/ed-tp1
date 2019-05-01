@@ -21,12 +21,10 @@ public:
     Node<T>* getUltimo() const;
     void adicionar(T* elemento);
     void adicionarEmOrdemDescendente(T* elemento);
-    T* removerProximo(Node<T>* no);
-    T* removerUltimo();
+    T* remover(Node<T>* no);
     uint16_t getTamanho() const;
     bool vazia() const;
     void ordenar();
-    void imprimir();
 };
 
 
