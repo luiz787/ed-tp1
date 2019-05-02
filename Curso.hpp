@@ -21,6 +21,7 @@ private:
     int compararAlunos(Aluno *a1, Aluno *a2) const;
     void marcarAlunoComoAprovado(Aluno *aluno) const;
     void marcarAlunoComoNaoAprovado(Aluno *alunoRemovido) const;
+    void marcarAplicacaoAluno(Aluno *aluno) const;
 public:
     Curso();
     Curso(uint16_t, std::string, uint16_t);

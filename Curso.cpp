@@ -16,6 +16,7 @@ uint16_t Curso::getId() const {
 }
 
 void Curso::adicionarAlunoListaIntermediaria(Aluno* aluno) {
+    marcarAplicacaoAluno(aluno);
     if (this->listaIntermediaria.vazia()) {
         this->listaIntermediaria.adicionarNoFinal(aluno);
     } else {
@@ -40,9 +41,9 @@ void Curso::adicionarAlunoListaIntermediaria(Aluno* aluno) {
 
 
 int Curso::compararAlunos(Aluno *a1, Aluno *a2) const {
-    int diff = a1->getNota() - a2->getNota();
+    double diff = a1->getNota() - a2->getNota();
     if (diff != 0) {
-        return diff;
+        return (int) diff;
     }
     if (a1->getCodigoPrimeiraOpcao() == this->id && a2->getCodigoSegundaOpcao() == this->id) {
         return 1;
@@ -111,6 +112,14 @@ void Curso::marcarAlunoComoNaoAprovado(Aluno *alunoRemovido) const {
         alunoRemovido->setAprovadoPrimeiraOpcao(false);
     } else if (id == alunoRemovido->getCodigoSegundaOpcao()) {
         alunoRemovido->setAprovadoSegundaOpcao(false);
+    }
+}
+
+void Curso::marcarAplicacaoAluno(Aluno *aluno) const {
+    if (id == aluno->getCodigoPrimeiraOpcao()) {
+        aluno->setAplicouPrimeiraOpcao(true);
+    } else if (id == aluno->getCodigoSegundaOpcao()) {
+        aluno->setAplicouSegundaOpcao(true);
     }
 }
 

@@ -14,7 +14,8 @@ private:
     uint16_t codigoSegundaOpcao;
     bool aprovadoPrimeiraOpcao;
     bool aprovadoSegundaOpcao;
-
+    bool aplicouPrimeiraOpcao;
+    bool aplicouSegundaOpcao;
     bool rejeitado;
 
 public:
@@ -31,6 +32,10 @@ public:
     void setAprovadoPrimeiraOpcao(bool aprovado);
     bool isAprovadoSegundaOpcao() const;
     void setAprovadoSegundaOpcao(bool aprovado);
+    bool isAplicouPrimeiraOpcao() const;
+    void setAplicouPrimeiraOpcao(bool aplicouPrimeiraOpcao);
+    bool isAplicouSegundaOpcao() const;
+    void setAplicouSegundaOpcao(bool aplicouSegundaOpcao);
 
     bool isRejeitado() const;
     void setRejeitado(bool rejeitado);

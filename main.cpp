@@ -142,7 +142,7 @@ Lista<Aluno> filtrarAlunosRejeitados(Lista<Aluno> &alunos) {
     auto nodeAluno = alunos.getPrimeiro();
     while (nodeAluno != nullptr) {
         auto aluno = nodeAluno->getValor();
-        if (aluno->isRejeitado()) {
+        if (aluno->isRejeitado() && !aluno->isAplicouSegundaOpcao()) {
             alunosRejeitados.adicionarNoFinal(aluno);
         }
         nodeAluno = nodeAluno->getProximo();
