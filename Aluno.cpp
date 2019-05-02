@@ -13,7 +13,8 @@ Aluno::Aluno(uint16_t id, std::string nome,
                                                                              codigoPrimeiraOpcao(codigoPrimeiraOpcao),
                                                                              codigoSegundaOpcao(codigoSegundaOpcao),
                                                                              aprovadoPrimeiraOpcao(false),
-                                                                             aprovadoSegundaOpcao(false) {}
+                                                                             aprovadoSegundaOpcao(false),
+                                                                             rejeitado(false) {}
 
 uint16_t Aluno::getId() const {
     return id;
@@ -49,6 +50,14 @@ bool Aluno::isAprovadoSegundaOpcao() const {
 
 void Aluno::setAprovadoSegundaOpcao(bool aprovado) {
     this->aprovadoSegundaOpcao = aprovado;
+}
+
+bool Aluno::isRejeitado() const {
+    return rejeitado;
+}
+
+void Aluno::setRejeitado(bool rejeitado) {
+    this->rejeitado = rejeitado;
 }
 
 bool Aluno::operator==(const Aluno &rhs) const {

@@ -54,6 +54,8 @@ void Lista<T>::adicionarEmOrdemDescendente(T* elemento) {
         novoNo->setProximo(noAtual->getProximo());
         if (noAtual->getProximo() != nullptr) {
             novoNo->getProximo()->setAnterior(novoNo);
+        } else {
+            this->ultimo = novoNo;
         }
         noAtual->setProximo(novoNo);
         novoNo->setAnterior(noAtual);

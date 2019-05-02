@@ -15,6 +15,8 @@ private:
     bool aprovadoPrimeiraOpcao;
     bool aprovadoSegundaOpcao;
 
+    bool rejeitado;
+
 public:
     Aluno();
     Aluno(uint16_t, std::string, double, uint16_t, uint16_t);
@@ -29,6 +31,9 @@ public:
     void setAprovadoPrimeiraOpcao(bool aprovado);
     bool isAprovadoSegundaOpcao() const;
     void setAprovadoSegundaOpcao(bool aprovado);
+
+    bool isRejeitado() const;
+    void setRejeitado(bool rejeitado);
 
     bool operator<(const Aluno &rhs) const;
     bool operator>(const Aluno &rhs) const;

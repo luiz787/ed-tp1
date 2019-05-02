@@ -19,7 +19,18 @@ void Curso::adicionarAlunoListaIntermediaria(Aluno* aluno) {
     if (this->listaIntermediaria.vazia()) {
         this->listaIntermediaria.adicionar(aluno);
     } else {
-        this->listaIntermediaria.adicionarEmOrdemDescendente(aluno);
+        if (aluno->getCodigoSegundaOpcao() == this->id) {
+            // O curso é a segunda opção do aluno. Ele não deve ultrapassar um aluno que tem a mesma nota e escolheu o curso como primeira opção.
+            auto ultimoAlunoListaIntermediaria = this->listaIntermediaria.getUltimo()->getValor();
+            if (aluno->getNota() == ultimoAlunoListaIntermediaria->getNota()
+                && ultimoAlunoListaIntermediaria->isAprovadoPrimeiraOpcao()) {
+                this->listaIntermediaria.adicionar(aluno); // adicionar no final.
+            } else { // a nota PODE ser igual, mas o último aluno não escolheu esse curso como primeira opção. Proceder normalmente.
+                this->listaIntermediaria.adicionarEmOrdemDescendente(aluno);
+            }
+        } else { // é a primeira opção. Proceder normalmente.
+            this->listaIntermediaria.adicionarEmOrdemDescendente(aluno);
+        }
     }
 }
 
@@ -41,10 +52,12 @@ void Curso::processarListaIntermediaria() {
             auto prox = nodeAluno->getProximo();
             auto alunoRemovido = this->listaIntermediaria.remover(nodeAluno);
             marcarAlunoComoNaoAprovado(alunoRemovido);
+            alunoRemovido->setRejeitado(true);
             nodeAluno = prox;
         } else {
             auto aluno = nodeAluno->getValor();
             marcarAlunoComoAprovado(aluno);
+            aluno->setRejeitado(false);
             quantidadeAprovados++;
             nodeAluno = nodeAluno->getProximo();
         }
