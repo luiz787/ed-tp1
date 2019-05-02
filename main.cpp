@@ -39,7 +39,7 @@ void lerEntrada(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
         std::getline(std::cin, nomeCurso);
         uint16_t quantidadeVagas;
         std::cin >> quantidadeVagas;
-        cursos.adicionar(new Curso(i, nomeCurso, quantidadeVagas));
+        cursos.adicionarNoFinal(new Curso(i, nomeCurso, quantidadeVagas));
     }
     for (uint16_t i = 0; i < m; i++) {
         std::string nomeAluno;
@@ -48,11 +48,12 @@ void lerEntrada(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
         double nota;
         uint16_t idCursoPrimeiraOpcao, idCursoSegundaOpcao;
         std::cin >> nota >> idCursoPrimeiraOpcao >> idCursoSegundaOpcao;
-        alunos.adicionarEmOrdemDescendente(new Aluno(i, nomeAluno, nota, idCursoPrimeiraOpcao, idCursoSegundaOpcao));
+        alunos.adicionarNoFinal(new Aluno(i, nomeAluno, nota, idCursoPrimeiraOpcao, idCursoSegundaOpcao));
     }
 }
 
 void processar(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
+    // alunos.ordenar();
     popularListasIntermediariasPrimeiraOpcao(cursos, alunos);
     processarListasIntermediarias(cursos);
 
@@ -128,7 +129,7 @@ Lista<Aluno> filtrarAlunosNaoAprovadosPrimeiraOpcao(Lista<Aluno> &alunos) {
     while (nodeAluno != nullptr) {
         auto aluno = nodeAluno->getValor();
         if (!aluno->isAprovadoPrimeiraOpcao()) {
-            alunosNaoAprovadosPrimeiraOpcao.adicionar(aluno);
+            alunosNaoAprovadosPrimeiraOpcao.adicionarNoFinal(aluno);
         }
         nodeAluno = nodeAluno->getProximo();
     }
@@ -142,7 +143,7 @@ Lista<Aluno> filtrarAlunosRejeitados(Lista<Aluno> &alunos) {
     while (nodeAluno != nullptr) {
         auto aluno = nodeAluno->getValor();
         if (aluno->isRejeitado()) {
-            alunosRejeitados.adicionar(aluno);
+            alunosRejeitados.adicionarNoFinal(aluno);
         }
         nodeAluno = nodeAluno->getProximo();
     }

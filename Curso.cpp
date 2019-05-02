@@ -17,28 +17,62 @@ uint16_t Curso::getId() const {
 
 void Curso::adicionarAlunoListaIntermediaria(Aluno* aluno) {
     if (this->listaIntermediaria.vazia()) {
-        this->listaIntermediaria.adicionar(aluno);
+        this->listaIntermediaria.adicionarNoFinal(aluno);
     } else {
-        if (aluno->getCodigoSegundaOpcao() == this->id) {
-            // O curso é a segunda opção do aluno. Ele não deve ultrapassar um aluno que tem a mesma nota e escolheu o curso como primeira opção.
-            auto ultimoAlunoListaIntermediaria = this->listaIntermediaria.getUltimo()->getValor();
-            if (aluno->getNota() == ultimoAlunoListaIntermediaria->getNota()
-                && ultimoAlunoListaIntermediaria->isAprovadoPrimeiraOpcao()) {
-                this->listaIntermediaria.adicionar(aluno); // adicionar no final.
-            } else { // a nota PODE ser igual, mas o último aluno não escolheu esse curso como primeira opção. Proceder normalmente.
-                this->listaIntermediaria.adicionarEmOrdemDescendente(aluno);
+        auto nodeAluno = this->listaIntermediaria.getPrimeiro();
+        while (nodeAluno != nullptr) {
+            auto alunoAtual = nodeAluno->getValor();
+            int cmp = compararAlunos(aluno, alunoAtual);
+            if (cmp > 0) {
+                break;
             }
-        } else { // é a primeira opção. Proceder normalmente.
-            this->listaIntermediaria.adicionarEmOrdemDescendente(aluno);
+            nodeAluno = nodeAluno->getProximo();
+        }
+
+        if (nodeAluno == nullptr) {
+            this->listaIntermediaria.adicionarNoFinal(aluno);
+        } else {
+            this->listaIntermediaria.adicionarAntes(aluno, nodeAluno);
         }
     }
 }
 
+
+
+int Curso::compararAlunos(Aluno *a1, Aluno *a2) const {
+    int diff = a1->getNota() - a2->getNota();
+    if (diff != 0) {
+        return diff;
+    }
+    if (a1->getCodigoPrimeiraOpcao() == this->id && a2->getCodigoSegundaOpcao() == this->id) {
+        return 1;
+    }
+    if (a1->getCodigoSegundaOpcao() == this->id && a2->getCodigoPrimeiraOpcao() == this->id) {
+        return -1;
+    }
+    return a1->getId() < a2->getId() ? 1 : -1;
+}
+
+
 void Curso::adicionarAlunoListaEspera(Aluno* aluno) {
-    if (listaEspera.vazia()) {
-        this->listaEspera.adicionar(aluno);
+    if (this->listaEspera.vazia()) {
+        this->listaEspera.adicionarNoFinal(aluno);
     } else {
-        this->listaEspera.adicionarEmOrdemDescendente(aluno);
+        auto nodeAluno = this->listaEspera.getPrimeiro();
+        while (nodeAluno != nullptr) {
+            auto alunoAtual = nodeAluno->getValor();
+            int cmp = compararAlunos(aluno, alunoAtual);
+            if (cmp > 0) {
+                break;
+            }
+            nodeAluno = nodeAluno->getProximo();
+        }
+
+        if (nodeAluno == nullptr) {
+            this->listaEspera.adicionarNoFinal(aluno);
+        } else {
+            this->listaEspera.adicionarAntes(aluno, nodeAluno);
+        }
     }
 }
 
@@ -85,7 +119,7 @@ void Curso::consolidarListaAprovados() {
     uint16_t quantidadeAprovados = 0;
     while (nodeAluno != nullptr) {
         auto aluno = nodeAluno->getValor();
-        aprovados.adicionar(aluno);
+        aprovados.adicionarNoFinal(aluno);
         quantidadeAprovados++;
         nodeAluno = nodeAluno->getProximo();
     }

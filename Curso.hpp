@@ -18,6 +18,7 @@ private:
     Lista<Aluno> listaEspera;
 
 
+    int compararAlunos(Aluno *a1, Aluno *a2) const;
     void marcarAlunoComoAprovado(Aluno *aluno) const;
     void marcarAlunoComoNaoAprovado(Aluno *alunoRemovido) const;
 public:

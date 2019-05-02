@@ -25,7 +25,7 @@ Node<T> *Lista<T>::getUltimo() const {
 }
 
 template<class T>
-void Lista<T>::adicionar(T* elemento) {
+void Lista<T>::adicionarNoFinal(T *elemento) {
     auto no = new Node<T>(elemento);
     no->setAnterior(this->ultimo);
     this->ultimo->setProximo(no);
@@ -34,9 +34,22 @@ void Lista<T>::adicionar(T* elemento) {
 }
 
 template<class T>
+void Lista<T>::adicionarAntes(T *elemento, Node<T> *no) {
+    auto novoNo = new Node<T>(elemento);
+
+    auto noAnterior = no->getAnterior();
+    noAnterior->setProximo(novoNo);
+    novoNo->setAnterior(noAnterior);
+
+    novoNo->setProximo(no);
+    no->setAnterior(novoNo);
+    this->tamanho++;
+}
+
+template<class T>
 void Lista<T>::adicionarEmOrdemDescendente(T* elemento) {
     if (this->vazia()) {
-        this->adicionar(elemento);
+        this->adicionarNoFinal(elemento);
         return;
     }
 
@@ -99,9 +112,16 @@ void Lista<T>::ordenar() {
     if (this->tamanho < 2) {
         return;
     }
-    Node<T>* noInicio = this->cabeca->getProximo();
+    auto noInicio = this->cabeca->getProximo();
     mergeSort(&noInicio);
     this->cabeca->setProximo(noInicio);
+    noInicio->setAnterior(this->cabeca);
+
+    auto noAtual = this->cabeca;
+    while (noAtual->getProximo() != nullptr) {
+        noAtual = noAtual->getProximo();
+    }
+    this->ultimo = noAtual;
 }
 
 template<class T>

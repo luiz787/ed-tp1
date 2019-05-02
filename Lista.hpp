@@ -19,7 +19,8 @@ public:
 
     Node<T>* getPrimeiro() const;
     Node<T>* getUltimo() const;
-    void adicionar(T* elemento);
+    void adicionarNoFinal(T *elemento);
+    void adicionarAntes(T *elemento, Node<T> *no);
     void adicionarEmOrdemDescendente(T* elemento);
     T* remover(Node<T>* no);
     uint16_t getTamanho() const;
