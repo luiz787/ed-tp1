@@ -14,16 +14,12 @@ private:
     uint16_t codigoSegundaOpcao;
     bool aprovadoPrimeiraOpcao;
     bool aprovadoSegundaOpcao;
-    bool aplicouPrimeiraOpcao;
     bool aplicouSegundaOpcao;
-    bool rejeitado;
-
 public:
     Aluno();
     Aluno(uint16_t, std::string, double, uint16_t, uint16_t);
 
     uint16_t getId() const;
-    const std::string &getNome() const;
     double getNota() const;
     uint16_t getCodigoPrimeiraOpcao() const;
     uint16_t getCodigoSegundaOpcao() const;
@@ -32,13 +28,9 @@ public:
     void setAprovadoPrimeiraOpcao(bool aprovado);
     bool isAprovadoSegundaOpcao() const;
     void setAprovadoSegundaOpcao(bool aprovado);
-    bool isAplicouPrimeiraOpcao() const;
-    void setAplicouPrimeiraOpcao(bool aplicouPrimeiraOpcao);
-    bool isAplicouSegundaOpcao() const;
     void setAplicouSegundaOpcao(bool aplicouSegundaOpcao);
 
-    bool isRejeitado() const;
-    void setRejeitado(bool rejeitado);
+    bool possuiEsperancaAprovacao();
 
     bool operator<(const Aluno &rhs) const;
     bool operator>(const Aluno &rhs) const;

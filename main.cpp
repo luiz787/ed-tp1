@@ -2,19 +2,25 @@
 #include "Curso.hpp"
 #include "ListaException.hpp"
 
+static const uint8_t PRIMEIRA_OPCAO = 1;
+static const uint8_t SEGUNDA_OPCAO = 2;
+
 void lerEntrada(Lista<Curso> &cursos, Lista<Aluno> &alunos);
 void processar(Lista<Curso> &cursos, Lista<Aluno> &alunos);
 void imprimirResultado(Lista<Curso> &cursos);
+
 Curso* obterCursoPorId(Lista<Curso> &cursos, uint16_t id);
+
+Lista<Aluno> filtrarAlunosPossuemEsperancaAprovacao(Lista<Aluno> &alunos);
 Lista<Aluno> filtrarAlunosNaoAprovadosPrimeiraOpcao(Lista<Aluno> &alunos);
-Lista<Aluno> filtrarAlunosRejeitados(Lista<Aluno> &alunos);
+
+void popularListasIntermediarias(Lista<Curso> &cursos, Lista<Aluno> &alunos, uint8_t opcao);
 void popularListasIntermediariasPrimeiraOpcao(Lista<Curso> &cursos, Lista<Aluno> &alunos);
 void popularListasIntermediariasSegundaOpcao(Lista<Curso> &cursos, Lista<Aluno> &alunos);
-void consolidarAprovados(const Lista<Curso> &cursos);
+void processarListasIntermediarias(Lista<Curso> &cursos);
 
 void atribuirListasDeEspera(Lista<Curso> &cursos, const Lista<Aluno> &alunosNaoAprovadosPrimeiraOpcao);
-
-void processarListasIntermediarias(Lista<Curso> &cursos);
+void consolidarAprovados(const Lista<Curso> &cursos);
 
 int main() {
     try {
@@ -26,7 +32,6 @@ int main() {
     } catch (ListaException& e) {
         std::cout << e.what();
     }
-
     return 0;
 }
 
@@ -53,21 +58,24 @@ void lerEntrada(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
 }
 
 void processar(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
-    // alunos.ordenar();
-    popularListasIntermediariasPrimeiraOpcao(cursos, alunos);
-    processarListasIntermediarias(cursos);
-
-    Lista<Aluno> alunosNaoAprovadosPrimeiraOpcao = filtrarAlunosNaoAprovadosPrimeiraOpcao(alunos);
-    popularListasIntermediariasSegundaOpcao(cursos, alunosNaoAprovadosPrimeiraOpcao);
-    processarListasIntermediarias(cursos);
-
-    Lista<Aluno> alunosRejeitados = filtrarAlunosRejeitados(alunos);
-    popularListasIntermediariasSegundaOpcao(cursos, alunosRejeitados);
-    processarListasIntermediarias(cursos);
-
+    auto alunosPossuemEsperancaAprovacao = alunos;
+    uint8_t opcaoAtual = PRIMEIRA_OPCAO;
+    while (!alunosPossuemEsperancaAprovacao.vazia()) {
+        popularListasIntermediarias(cursos, alunosPossuemEsperancaAprovacao, opcaoAtual);
+        processarListasIntermediarias(cursos);
+        alunosPossuemEsperancaAprovacao = filtrarAlunosPossuemEsperancaAprovacao(alunos);
+        opcaoAtual = SEGUNDA_OPCAO;
+    }
     atribuirListasDeEspera(cursos, filtrarAlunosNaoAprovadosPrimeiraOpcao(alunos));
-
     consolidarAprovados(cursos);
+}
+
+void popularListasIntermediarias(Lista<Curso> &cursos, Lista<Aluno> &alunos, uint8_t opcao) {
+    if (opcao == 1) {
+        popularListasIntermediariasPrimeiraOpcao(cursos, alunos);
+    } else if (opcao == 2) {
+        popularListasIntermediariasSegundaOpcao(cursos, alunos);
+    }
 }
 
 void popularListasIntermediariasPrimeiraOpcao(Lista<Curso> &cursos, Lista<Aluno> &alunos) {
@@ -136,18 +144,18 @@ Lista<Aluno> filtrarAlunosNaoAprovadosPrimeiraOpcao(Lista<Aluno> &alunos) {
     return alunosNaoAprovadosPrimeiraOpcao;
 }
 
-Lista<Aluno> filtrarAlunosRejeitados(Lista<Aluno> &alunos) {
-    auto alunosRejeitados = Lista<Aluno>();
+Lista<Aluno> filtrarAlunosPossuemEsperancaAprovacao(Lista<Aluno> &alunos) {
+    auto alunosPossuemEsperancaAprovacao = Lista<Aluno>();
 
     auto nodeAluno = alunos.getPrimeiro();
     while (nodeAluno != nullptr) {
         auto aluno = nodeAluno->getValor();
-        if (aluno->isRejeitado() && !aluno->isAplicouSegundaOpcao()) {
-            alunosRejeitados.adicionarNoFinal(aluno);
+        if (aluno->possuiEsperancaAprovacao()) {
+            alunosPossuemEsperancaAprovacao.adicionarNoFinal(aluno);
         }
         nodeAluno = nodeAluno->getProximo();
     }
-    return alunosRejeitados;
+    return alunosPossuemEsperancaAprovacao;
 }
 
 Curso* obterCursoPorId(Lista<Curso> &cursos, uint16_t id){

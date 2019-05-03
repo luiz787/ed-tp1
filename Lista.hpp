@@ -11,22 +11,14 @@ private:
     Node<T>* cabeca;
     Node<T>* ultimo;
     uint16_t tamanho;
-    void mergeSort(Node<T>** referenciaInicio);
-    void dividirPelaMetade(Node<T>* fonte, Node<T>** referenciaFrente, Node<T>** referenciaTras);
-    Node<T>* unirListas(Node<T> *a, Node<T> *b);
 public:
     Lista();
-
     Node<T>* getPrimeiro() const;
     Node<T>* getUltimo() const;
     void adicionarNoFinal(T *elemento);
     void adicionarAntes(T *elemento, Node<T> *no);
-    void adicionarEmOrdemDescendente(T* elemento);
     T* remover(Node<T>* no);
-    uint16_t getTamanho() const;
     bool vazia() const;
-    void ordenar();
 };
-
 
 #endif

@@ -16,7 +16,9 @@ uint16_t Curso::getId() const {
 }
 
 void Curso::adicionarAlunoListaIntermediaria(Aluno* aluno) {
-    marcarAplicacaoAluno(aluno);
+    if (id == aluno->getCodigoSegundaOpcao()) {
+        aluno->setAplicouSegundaOpcao(true);
+    }
     if (this->listaIntermediaria.vazia()) {
         this->listaIntermediaria.adicionarNoFinal(aluno);
     } else {
@@ -87,12 +89,10 @@ void Curso::processarListaIntermediaria() {
             auto prox = nodeAluno->getProximo();
             auto alunoRemovido = this->listaIntermediaria.remover(nodeAluno);
             marcarAlunoComoNaoAprovado(alunoRemovido);
-            alunoRemovido->setRejeitado(true);
             nodeAluno = prox;
         } else {
             auto aluno = nodeAluno->getValor();
             marcarAlunoComoAprovado(aluno);
-            aluno->setRejeitado(false);
             quantidadeAprovados++;
             nodeAluno = nodeAluno->getProximo();
         }
@@ -112,14 +112,6 @@ void Curso::marcarAlunoComoNaoAprovado(Aluno *alunoRemovido) const {
         alunoRemovido->setAprovadoPrimeiraOpcao(false);
     } else if (id == alunoRemovido->getCodigoSegundaOpcao()) {
         alunoRemovido->setAprovadoSegundaOpcao(false);
-    }
-}
-
-void Curso::marcarAplicacaoAluno(Aluno *aluno) const {
-    if (id == aluno->getCodigoPrimeiraOpcao()) {
-        aluno->setAplicouPrimeiraOpcao(true);
-    } else if (id == aluno->getCodigoSegundaOpcao()) {
-        aluno->setAplicouSegundaOpcao(true);
     }
 }
 
