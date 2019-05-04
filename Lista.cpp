@@ -25,6 +25,11 @@ Node<T> *Lista<T>::getUltimo() const {
 }
 
 template<class T>
+uint16_t Lista<T>::getTamanho() const {
+    return this->tamanho;
+}
+
+template<class T>
 void Lista<T>::adicionarNoFinal(T *elemento) {
     auto no = new Node<T>(elemento);
     no->setAnterior(this->ultimo);

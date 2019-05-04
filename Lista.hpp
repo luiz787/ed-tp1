@@ -15,6 +15,7 @@ public:
     Lista();
     Node<T>* getPrimeiro() const;
     Node<T>* getUltimo() const;
+    uint16_t getTamanho() const;
     void adicionarNoFinal(T *elemento);
     void adicionarAntes(T *elemento, Node<T> *no);
     T* remover(Node<T>* no);

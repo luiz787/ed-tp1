@@ -11,7 +11,6 @@ private:
     uint16_t id;
     std::string nome;
     uint16_t quantidadeVagas;
-    uint16_t quantidadeVagasRemanescentes;
     double notaCorte;
     Lista<Aluno> listaIntermediaria;
     Lista<Aluno> aprovados;

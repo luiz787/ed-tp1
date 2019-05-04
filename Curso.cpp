@@ -6,7 +6,6 @@ Curso::Curso() = default;
 
 Curso::Curso(uint16_t id, std::string nome, uint16_t quantidadeVagas) : id(id), nome(std::move(nome)),
                                                               quantidadeVagas(quantidadeVagas),
-                                                              quantidadeVagasRemanescentes(quantidadeVagas),
                                                               notaCorte(0),
                                                               aprovados(),
                                                               listaEspera() {}
@@ -116,16 +115,8 @@ void Curso::marcarAlunoComoNaoAprovado(Aluno *alunoRemovido) const {
 }
 
 void Curso::consolidarListaAprovados() {
-    auto nodeAluno = listaIntermediaria.getPrimeiro();
-    uint16_t quantidadeAprovados = 0;
-    while (nodeAluno != nullptr) {
-        auto aluno = nodeAluno->getValor();
-        aprovados.adicionarNoFinal(aluno);
-        quantidadeAprovados++;
-        nodeAluno = nodeAluno->getProximo();
-    }
-
-    if (quantidadeAprovados == quantidadeVagas) {
+    aprovados = listaIntermediaria;
+    if (aprovados.getTamanho() == quantidadeVagas) {
         this->notaCorte = aprovados.getUltimo()->getValor()->getNota();
     }
 }
