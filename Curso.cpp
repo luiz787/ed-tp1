@@ -6,7 +6,6 @@ Curso::Curso() = default;
 
 Curso::Curso(uint16_t id, std::string nome, uint16_t quantidadeVagas) : id(id), nome(std::move(nome)),
                                                               quantidadeVagas(quantidadeVagas),
-                                                              quantidadeVagasRemanescentes(quantidadeVagas),
                                                               notaCorte(0),
                                                               aprovados(),
                                                               listaEspera() {}
@@ -15,34 +14,112 @@ uint16_t Curso::getId() const {
     return id;
 }
 
-const std::string &Curso::getNome() const {
-    return nome;
+void Curso::adicionarAlunoListaIntermediaria(Aluno* aluno) {
+    if (id == aluno->getCodigoSegundaOpcao()) {
+        aluno->setAplicouSegundaOpcao(true);
+    }
+    if (this->listaIntermediaria.vazia()) {
+        this->listaIntermediaria.adicionarNoFinal(aluno);
+    } else {
+        auto nodeAluno = this->listaIntermediaria.getPrimeiro();
+        while (nodeAluno != nullptr) {
+            auto alunoAtual = nodeAluno->getValor();
+            int cmp = compararAlunos(aluno, alunoAtual);
+            if (cmp > 0) {
+                break;
+            }
+            nodeAluno = nodeAluno->getProximo();
+        }
+
+        if (nodeAluno == nullptr) {
+            this->listaIntermediaria.adicionarNoFinal(aluno);
+        } else {
+            this->listaIntermediaria.adicionarAntes(aluno, nodeAluno);
+        }
+    }
 }
 
-uint16_t Curso::getQuantidadeVagas() const {
-    return quantidadeVagas;
+
+
+int Curso::compararAlunos(Aluno *a1, Aluno *a2) const {
+    double diff = a1->getNota() - a2->getNota();
+    if (diff != 0) {
+        return (int) diff;
+    }
+    if (a1->getCodigoPrimeiraOpcao() == this->id && a2->getCodigoSegundaOpcao() == this->id) {
+        return 1;
+    }
+    if (a1->getCodigoSegundaOpcao() == this->id && a2->getCodigoPrimeiraOpcao() == this->id) {
+        return -1;
+    }
+    return a1->getId() < a2->getId() ? 1 : -1;
 }
 
-uint16_t Curso::getQuantidadeVagasRemanescentes() const {
-    return quantidadeVagasRemanescentes;
+
+void Curso::adicionarAlunoListaEspera(Aluno* aluno) {
+    if (this->listaEspera.vazia()) {
+        this->listaEspera.adicionarNoFinal(aluno);
+    } else {
+        auto nodeAluno = this->listaEspera.getPrimeiro();
+        while (nodeAluno != nullptr) {
+            auto alunoAtual = nodeAluno->getValor();
+            int cmp = compararAlunos(aluno, alunoAtual);
+            if (cmp > 0) {
+                break;
+            }
+            nodeAluno = nodeAluno->getProximo();
+        }
+
+        if (nodeAluno == nullptr) {
+            this->listaEspera.adicionarNoFinal(aluno);
+        } else {
+            this->listaEspera.adicionarAntes(aluno, nodeAluno);
+        }
+    }
 }
 
-double Curso::getNotaCorte() const {
-    return notaCorte;
+void Curso::processarListaIntermediaria() {
+    uint16_t quantidadeAprovados = 0;
+    auto nodeAluno = this->listaIntermediaria.getPrimeiro();
+    while (nodeAluno != nullptr) {
+        if (quantidadeAprovados == this->quantidadeVagas) {
+            /* variável auxiliar para manter a referência do próximo aluno, uma vez que nodeAluno será desalocado
+             * em Lista::remover */
+            auto prox = nodeAluno->getProximo();
+            auto alunoRemovido = this->listaIntermediaria.remover(nodeAluno);
+            marcarAlunoComoNaoAprovado(alunoRemovido);
+            nodeAluno = prox;
+        } else {
+            auto aluno = nodeAluno->getValor();
+            marcarAlunoComoAprovado(aluno);
+            quantidadeAprovados++;
+            nodeAluno = nodeAluno->getProximo();
+        }
+    }
 }
 
-bool Curso::possuiVagas() const {
-    return quantidadeVagasRemanescentes > 0;
+void Curso::marcarAlunoComoAprovado(Aluno *aluno) const {
+    if (id == aluno->getCodigoPrimeiraOpcao()) {
+        aluno->setAprovadoPrimeiraOpcao(true);
+    } else if (id == aluno->getCodigoSegundaOpcao()) {
+        aluno->setAprovadoSegundaOpcao(true);
+    }
 }
 
-const Lista<Aluno> &Curso::getAprovados() const {
-    return aprovados;
+void Curso::marcarAlunoComoNaoAprovado(Aluno *alunoRemovido) const {
+    if (id == alunoRemovido->getCodigoPrimeiraOpcao()) {
+        alunoRemovido->setAprovadoPrimeiraOpcao(false);
+    } else if (id == alunoRemovido->getCodigoSegundaOpcao()) {
+        alunoRemovido->setAprovadoSegundaOpcao(false);
+    }
 }
 
-const Lista<Aluno> &Curso::getListaEspera() const {
-    return listaEspera;
+void Curso::consolidarListaAprovados() {
+    aprovados = listaIntermediaria;
+    if (aprovados.getTamanho() == quantidadeVagas) {
+        this->notaCorte = aprovados.getUltimo()->getValor()->getNota();
+    }
 }
-
 
 bool Curso::operator==(const Curso &rhs) const {
     return id == rhs.id &&
@@ -84,8 +161,8 @@ bool Curso::operator>=(const Curso &rhs) const {
 
 std::ostream &operator<<(std::ostream &os, const Curso &curso) {
     os << std::fixed << std::setprecision(2)
-        << curso.nome << " " << curso.notaCorte << std::endl
-        << "Classificados" << std::endl;
+       << curso.nome << " " << curso.notaCorte << std::endl
+       << "Classificados" << std::endl;
     Lista<Aluno> classificados = curso.aprovados;
     Node<Aluno>* aluno = classificados.getPrimeiro();
     while(aluno != nullptr) {
@@ -100,30 +177,4 @@ std::ostream &operator<<(std::ostream &os, const Curso &curso) {
         aluno = aluno->getProximo();
     }
     return os;
-}
-
-void Curso::adicionarAlunoListaAprovados(Aluno* aluno) {
-    if (quantidadeVagasRemanescentes == 0) {
-        auto alunoRemovido = aprovados.removerUltimo();
-        alunoRemovido->setAprovado(false);
-        this->quantidadeVagasRemanescentes++;
-    }
-
-    if (aprovados.vazia() || aluno->getNota() < aprovados.getUltimo()->getValor()->getNota()) {
-        this->aprovados.adicionar(aluno);
-    } else {
-        this->aprovados.adicionarEmOrdemDescendente(aluno);
-    }
-    this->quantidadeVagasRemanescentes--;
-    if (quantidadeVagasRemanescentes == 0) {
-        this->notaCorte = this->aprovados.getUltimo()->getValor()->getNota();
-    }
-}
-
-void Curso::adicionarAlunoListaEspera(Aluno* aluno) {
-    if (listaEspera.vazia() || aluno->getNota() < listaEspera.getUltimo()->getValor()->getNota()) {
-        this->listaEspera.adicionar(aluno);
-    } else {
-        this->listaEspera.adicionarEmOrdemDescendente(aluno);
-    }
 }

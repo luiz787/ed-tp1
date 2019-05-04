@@ -12,14 +12,12 @@ Aluno::Aluno(uint16_t id, std::string nome,
                                                                              nota(nota),
                                                                              codigoPrimeiraOpcao(codigoPrimeiraOpcao),
                                                                              codigoSegundaOpcao(codigoSegundaOpcao),
-                                                                             aprovado(false) {}
+                                                                             aprovadoPrimeiraOpcao(false),
+                                                                             aprovadoSegundaOpcao(false),
+                                                                             aplicouSegundaOpcao(false) {}
 
 uint16_t Aluno::getId() const {
     return id;
-}
-
-const std::string &Aluno::getNome() const {
-    return nome;
 }
 
 double Aluno::getNota() const {
@@ -34,12 +32,28 @@ uint16_t Aluno::getCodigoSegundaOpcao() const {
     return codigoSegundaOpcao;
 }
 
-bool Aluno::isAprovado() const {
-    return aprovado;
+bool Aluno::isAprovadoPrimeiraOpcao() const {
+    return aprovadoPrimeiraOpcao;
 }
 
-void Aluno::setAprovado(bool aprovado) {
-    this->aprovado = aprovado;
+void Aluno::setAprovadoPrimeiraOpcao(bool aprovado) {
+    this->aprovadoPrimeiraOpcao = aprovado;
+}
+
+bool Aluno::isAprovadoSegundaOpcao() const {
+    return aprovadoSegundaOpcao;
+}
+
+void Aluno::setAprovadoSegundaOpcao(bool aprovado) {
+    this->aprovadoSegundaOpcao = aprovado;
+}
+
+void Aluno::setAplicouSegundaOpcao(bool aplicouSegundaOpcao) {
+    this->aplicouSegundaOpcao = aplicouSegundaOpcao;
+}
+
+bool Aluno::possuiEsperancaAprovacao() {
+    return !aprovadoPrimeiraOpcao && !aplicouSegundaOpcao;
 }
 
 bool Aluno::operator==(const Aluno &rhs) const {
@@ -55,7 +69,7 @@ bool Aluno::operator!=(const Aluno &rhs) const {
 }
 
 /**
- * Compara um aluno com o outro. Ordem de comparação: nota, nome (ordem alfabética), id (ordem de entrada).
+ * Compara um aluno com o outro. Ordem de comparação: nota, id (ordem de entrada).
  * @param rhs - outro aluno
  * @return true se esse aluno for "menor" que o outro, false caso contrário.
  */
@@ -66,17 +80,8 @@ bool Aluno::operator<(const Aluno &rhs) const {
     if (rhs.nota < nota) {
         return false;
     }
-    /*
-     * Um aluno que foi inserido primeiro (com id menor) deve ser "maior".
-     */
-    if (id < rhs.id) {
-        return false;
-    }
-    if (rhs.id < id) {
-        return true;
-    }
 
-    return nome < rhs.nome;
+    return id > rhs.id; // Um aluno que foi inserido depois que outro (com id maior) deve ser "menor".
 }
 
 bool Aluno::operator>(const Aluno &rhs) const {

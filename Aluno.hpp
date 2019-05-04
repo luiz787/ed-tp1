@@ -12,9 +12,26 @@ private:
     double nota;
     uint16_t codigoPrimeiraOpcao;
     uint16_t codigoSegundaOpcao;
-    bool aprovado;
-
+    bool aprovadoPrimeiraOpcao;
+    bool aprovadoSegundaOpcao;
+    bool aplicouSegundaOpcao;
 public:
+    Aluno();
+    Aluno(uint16_t, std::string, double, uint16_t, uint16_t);
+
+    uint16_t getId() const;
+    double getNota() const;
+    uint16_t getCodigoPrimeiraOpcao() const;
+    uint16_t getCodigoSegundaOpcao() const;
+
+    bool isAprovadoPrimeiraOpcao() const;
+    void setAprovadoPrimeiraOpcao(bool aprovado);
+    bool isAprovadoSegundaOpcao() const;
+    void setAprovadoSegundaOpcao(bool aprovado);
+    void setAplicouSegundaOpcao(bool aplicouSegundaOpcao);
+
+    bool possuiEsperancaAprovacao();
+
     bool operator<(const Aluno &rhs) const;
     bool operator>(const Aluno &rhs) const;
     bool operator<=(const Aluno &rhs) const;
@@ -22,17 +39,6 @@ public:
 
     bool operator==(const Aluno &rhs) const;
     bool operator!=(const Aluno &rhs) const;
-
-    Aluno();
-    Aluno(uint16_t, std::string, double, uint16_t, uint16_t);
-
-    uint16_t getId() const;
-    const std::string &getNome() const;
-    double getNota() const;
-    uint16_t getCodigoPrimeiraOpcao() const;
-    uint16_t getCodigoSegundaOpcao() const;
-    bool isAprovado() const;
-    void setAprovado(bool aprovado);
 
     friend std::ostream &operator<<(std::ostream &os, const Aluno &aluno);
 };
